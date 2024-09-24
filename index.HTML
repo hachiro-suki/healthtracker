@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tracker with Video Background</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .video-background video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 50%;
+        }
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            background-color: rgba(0, 123, 255, 0.8);
+            padding: 15px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .navbar a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .health-section, .activity-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+        }
+
+        .add-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .add-btn:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 123, 255, 0.8);
+            color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-background">
+        <video autoplay loop muted>
+            <source src="Underwater Effect with Particles Free Background Videos, No Copyright .mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div class="navbar">
+        <a href="#about" onclick="scrollToSection('about')">About Us</a>
+        <a href="#contact" onclick="scrollToSection('contact')">Contact</a>
+        <a href="#tutorial" onclick="scrollToSection('tutorial')">Tutorial</a>
+    </div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+    <div class="container">
+        <div class="health-section">
+            <h1>Health Tracker</h1>
+            <input type="number" id="weight" placeholder="Weight (kg)">
+            <input type="number" id="height" placeholder="Height (cm)">
+            <input type="number" id="sleepQuality" placeholder="Sleep Quality (1-10)">
+            <input type="number" id="hoursSleep" placeholder="Hours of Sleep">
+            <button class="add-btn" onclick="submitData()">Submit Data</button>
+            <div id="alert" class="alert"></div>
+            <div id="advice" class="advice"></div>
+        </div>
+
+        <div class="activity-section">
+            <h1>Physical Activity & BMI</h1>
+            <input type="text" id="physicalActivity" placeholder="Describe your activity">
+            <button class="add-btn" onclick="addActivity()">Add Activity</button>
+            <ul id="activityList"></ul>
+
+            <h2>BMI Calculator</h2>
+            <input type="number" id="bmiWeight" placeholder="Weight (kg) for BMI">
+            <input type="number" id="bmiHeight" placeholder="Height (cm) for BMI">
+            <button class="add-btn" onclick="calculateBMI()">Calculate BMI</button>
+            <div id="bmiResult"></div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Health Tracker
+    </footer>
+
+    <script>
+        const sleepGuidelines = {
+            infant: "12 to 16 hours per 24 hours, including naps",
+            toddler: "11 to 14 hours per 24 hours, including naps",
+            preschool: "10 to 13 hours per 24 hours, including naps",
+            schoolAge: "9 to 12 hours per 24 hours",
+            teen: "8 to 10 hours per 24 hours",
+            adult: "7 or more hours a night"
+        };
+
+        function submitData() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const sleepQuality = parseInt(document.getElementById('sleepQuality').value);
+            const hoursSleep = parseInt(document.getElementById('hoursSleep').value);
+
+            const alertElement = document.getElementById('alert');
+            const adviceElement = document.getElementById('advice');
+
+            alertElement.innerHTML = '';
+            adviceElement.innerHTML = '';
+
+            if (weight < 40 || weight > 200) {
+                alertElement.innerHTML = 'Warning: Unhealthy weight input!';
+                adviceElement.innerHTML = 'Consult a healthcare provider.';
+            } else if (height < 100 || height > 250) {
+                alertElement.innerHTML = 'Warning: Unhealthy height input!';
+                adviceElement.innerHTML = 'Ensure height measurement is accurate.';
+            } else if (sleepQuality < 5) {
+                alertElement.innerHTML = 'Warning: Low sleep quality!';
+                adviceElement.innerHTML = 'Try improving your sleep hygiene.';
+            } else if (hoursSleep < 7) {
+                alertElement.innerHTML = `Warning: Low sleep hours! Normal sleep for adults is ${sleepGuidelines.adult}.`;
+                adviceElement.innerHTML = 'Aim for 7-8 hours of sleep.';
+            } else {
+                adviceElement.innerHTML = 'Your inputs are healthy! Keep it up!';
+            }
+
+            document.getElementById('weight').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('sleepQuality').value = '';
+            document.getElementById('hoursSleep').value = '';
+        }
+
+        function addActivity() {
+            const activityInput = document.getElementById('physicalActivity');
+            const activityValue = activityInput.value.trim();
+
+            if (activityValue === '') {
+                alert('Please describe your activity');
+                return;
+            }
+
+            const activityList = document.getElementById('activityList');
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `${activityValue} <button class="delete-btn" onclick="deleteActivity(this)">Delete</button>`;
+            activityList.appendChild(listItem);
+            activityInput.value = '';
+        }
+
+        function deleteActivity(button) {
+            const listItem = button.parentElement;
+            listItem.remove();
+        }
+
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            const height = parseFloat(document.getElementById('bmiHeight').value) / 100;
+
+            if (isNaN(weight) || isNaN(height)) {
+                alert('Please enter valid weight and height');
+                return;
+            }
+
+            const bmi = weight / (height * height);
+            let bmiStatus = '';
+
+            if (bmi < 18.5) {
+                bmiStatus = 'Underweight';
+            } else if (bmi >= 18.5 && bmi < 24.9) {
+                bmiStatus = 'Normal weight';
+            } else if (bmi >= 25 && bmi < 29.9) {
+                bmiStatus = 'Overweight';
+            } else {
+                bmiStatus = 'Obese';
+            }
+
+            document.getElementById('bmiResult').innerHTML = `Your BMI is ${bmi.toFixed(2)} (${bmiStatus})`;
+            document.getElementById('bmiWeight').value = '';
+            document.getElementById('bmiHeight').value = '';
+        }
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
